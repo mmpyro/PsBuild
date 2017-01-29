@@ -9,6 +9,20 @@
     MsBuild() {
         $msBuild_4 = "C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"        
         $this.msbuild = $msBuild_4
+		$this.configuration = $null
+        $this.maxCPU = 0
+        $this.platform = $null
+        $this.targetFramework = $null
+    }
+
+    [MsBuild] MsBuildPath([string] $path) {
+        $this.msbuild = $path
+        return $this
+    }
+
+    [MsBuild] Net4() {
+        $this.targetFramework = 'v4.0'
+        return $this
     }
 
     [MsBuild] Net45() {
@@ -23,6 +37,11 @@
 
     [MsBuild] Net46() {
         $this.targetFramework = 'v4.6'
+        return $this
+    }
+
+    [MsBuild] Net46() {
+        $this.targetFramework = 'v4.6.1'
         return $this
     }
 
@@ -61,7 +80,6 @@
         return $this
     }
 
-
     [void] Build([string] $fileToBuild) {
         $args = $this.CreateArgs()
         $args += "/t:Build"
@@ -73,27 +91,28 @@
         $args = $this.CreateArgs()
         $args += "/t:Rebuild"
         $args += "$fileToBuild"
+        Write-Host $args
         & $this.msbuild $args|Out-Host
     }
 
     hidden [string[]] CreateArgs() {
         $args = @()
-        if($this.platform -ne $null) 
+        if([String]::IsNullOrEmpty($this.platform) -eq $false)  
         {
             $args += "/p:Platform=$($this.platform)"
         }
 
-        if($this.configuration -ne $null)
+        if([String]::IsNullOrEmpty($this.configuration) -eq $false)
         {
             $args += "/p:Configuration=$($this.configuration)"
         }
 
-        if($this.targetFramework -ne $null)
+        if([String]::IsNullOrEmpty($this.targetFramework) -eq $false)
         {
             $args += "/p:TargetFrameworkVersion=$($this.targetFramework)"
         }
 
-        if($this.maxCPU -ne $null)
+        if($this.maxCPU -ne 0)
         {
             $args += "/maxcpucount:$($this.maxCPU)"
         }
